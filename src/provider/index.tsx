@@ -1,4 +1,5 @@
 import { ClerkProvider } from "@clerk/nextjs";
+import { shadcn } from "@clerk/ui/themes";
 import { Toaster } from "@/components/ui/toast";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ThemeProvider } from "./theme-provider";
@@ -9,7 +10,10 @@ interface ProviderProps {
 
 export default function Provider({ children }: ProviderProps) {
   return (
-    <ClerkProvider>
+    <ClerkProvider
+      appearance={{ theme: shadcn }}
+      taskUrls={{ "choose-organization": "/choose-organization" }}
+    >
       <ThemeProvider
         attribute="class"
         defaultTheme="system"
