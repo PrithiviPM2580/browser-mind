@@ -20,6 +20,9 @@ export async function AppSidebar({ ...props }: AppSidebarProps) {
     <Sidebar variant="inset" collapsible="icon" {...props}>
       <SidebarHeader className="flex-row items-center justify-between gap-2 group-data-collapsible-icon:justify-center group-data-[collapsible=icon]:gap-0">
         <OrganizationSwitcher
+          afterCreateOrganizationUrl="/"
+          afterSelectOrganizationUrl="/"
+          afterLeaveOrganizationUrl="/"
           hidePersonal
           appearance={{
             elements: {
