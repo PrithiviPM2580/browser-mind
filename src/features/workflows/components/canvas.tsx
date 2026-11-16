@@ -7,22 +7,41 @@ import {
   ConnectionLineType,
   Controls,
   type Edge,
-  type Node,
+  type NodeTypes,
   ReactFlow,
   useEdgesState,
   useNodesState,
 } from "@xyflow/react";
 import { useTheme } from "next-themes";
 import { useCallback, useEffect, useState } from "react";
+import type { StepNodeType } from "@/features/workflows/nodes/node-registry";
+import { StepNode } from "./step-node";
 
 import "@xyflow/react/dist/style.css";
 
-const initialNodes: Node[] = [
-  { id: "1", data: { label: "Node 1" }, position: { x: 0, y: 0 } },
-  { id: "2", data: { label: "Node 2" }, position: { x: 250, y: 0 } },
+const nodeTypes: NodeTypes = { step: StepNode };
+
+const initialNodes: StepNodeType[] = [
+  {
+    id: "start",
+    type: "step",
+    position: { x: 0, y: 0 },
+    data: { type: "start", kind: "trigger", title: "Start", values: {} },
+  },
+  {
+    id: "open-url",
+    type: "step",
+    position: { x: 300, y: 0 },
+    data: {
+      type: "open-url",
+      kind: "action",
+      title: "Open URL",
+      values: { url: "https://example.com" },
+    },
+  },
 ];
 
-const initialEdges: Edge[] = [{ id: "e1-2", source: "1", target: "2" }];
+const initialEdges: Edge[] = [];
 
 export const Canvas = () => {
   const { resolvedTheme } = useTheme();
@@ -50,6 +69,7 @@ export const Canvas = () => {
       <ReactFlow
         nodes={nodes}
         edges={edges}
+        nodeTypes={nodeTypes}
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
         onConnect={onConnect}
