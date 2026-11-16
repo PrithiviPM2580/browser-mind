@@ -1,3 +1,10 @@
+import { OrganizationSwitcher, UserButton } from "@clerk/nextjs";
+
 export default function Home() {
-  return <div className="">Home</div>;
+  return (
+    <div className="">
+      <UserButton />
+      <OrganizationSwitcher />
+    </div>
+  );
 }
