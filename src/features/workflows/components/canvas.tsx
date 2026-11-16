@@ -1,12 +1,14 @@
 "use client";
 
 import { Cursors, useLiveblocksFlow } from "@liveblocks/react-flow";
+import { AvatarStack } from "@liveblocks/react-ui";
 import {
   type ColorMode,
   ConnectionLineType,
   Controls,
   type Edge,
   type NodeTypes,
+  Panel,
   ReactFlow,
 } from "@xyflow/react";
 import { useTheme } from "next-themes";
@@ -78,6 +80,9 @@ export const Canvas = () => {
       >
         <Controls />
         <Cursors />
+        <Panel position="top-right">
+          <AvatarStack />
+        </Panel>
       </ReactFlow>
     </div>
   );
