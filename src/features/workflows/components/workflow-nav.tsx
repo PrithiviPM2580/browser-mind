@@ -1,6 +1,8 @@
 "use client";
 
 import { PlusIcon, WorkflowIcon } from "lucide-react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useTransition } from "react";
 import {
   Popover,
@@ -32,6 +34,7 @@ export const WorkflowNav = ({
 }: WorkflowNavProps) => {
   const { state } = useSidebar();
   const [isPending, startTransition] = useTransition();
+  const pathname = usePathname();
 
   const handleCreateWorkflow = () => {
     startTransition(async () => {
@@ -41,9 +44,14 @@ export const WorkflowNav = ({
 
   const workflowItems = workflows.map((workflow) => (
     <SidebarMenuItem key={workflow.id}>
-      <SidebarMenuButton>
-        <span>{workflow.name}</span>
-      </SidebarMenuButton>
+      <SidebarMenuButton
+        isActive={pathname === `/workflows/${workflow.id}`}
+        render={
+          <Link href={`/workflows/${workflow.id}`}>
+            <span>{workflow.name}</span>
+          </Link>
+        }
+      />
     </SidebarMenuItem>
   ));
 
