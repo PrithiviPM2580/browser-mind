@@ -1,23 +1,21 @@
 "use client";
 
+import { Cursors, useLiveblocksFlow } from "@liveblocks/react-flow";
 import {
-  addEdge,
   type ColorMode,
-  type Connection,
   ConnectionLineType,
   Controls,
   type Edge,
   type NodeTypes,
   ReactFlow,
-  useEdgesState,
-  useNodesState,
 } from "@xyflow/react";
 import { useTheme } from "next-themes";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import type { StepNodeType } from "@/features/workflows/nodes/node-registry";
 import { StepNode } from "./step-node";
-
 import "@xyflow/react/dist/style.css";
+import "@liveblocks/react-ui/styles.css";
+import "@liveblocks/react-flow/styles.css";
 
 const nodeTypes: NodeTypes = { step: StepNode };
 
@@ -27,17 +25,6 @@ const initialNodes: StepNodeType[] = [
     type: "step",
     position: { x: 0, y: 0 },
     data: { type: "start", kind: "trigger", title: "Start", values: {} },
-  },
-  {
-    id: "open-url",
-    type: "step",
-    position: { x: 300, y: 0 },
-    data: {
-      type: "open-url",
-      kind: "action",
-      title: "Open URL",
-      values: { url: "https://example.com" },
-    },
   },
 ];
 
@@ -55,23 +42,22 @@ export const Canvas = () => {
   const color: ColorMode =
     mounted && resolvedTheme === "dark" ? "dark" : "light";
 
-  const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
-  const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
-
-  const onConnect = useCallback(
-    (connection: Connection) => setEdges((eds) => addEdge(connection, eds)),
-    [setEdges],
-  );
+  const { nodes, edges, onNodesChange, onEdgesChange, onConnect, onDelete } =
+    useLiveblocksFlow({
+      suspense: true,
+      nodes: { initial: initialNodes },
+      edges: { initial: initialEdges },
+    });
 
   return (
     <div className="size-full">
-      {" "}
       <ReactFlow
         nodes={nodes}
         edges={edges}
         nodeTypes={nodeTypes}
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
+        onDelete={onDelete}
         onConnect={onConnect}
         color={color}
         fitView
@@ -91,6 +77,7 @@ export const Canvas = () => {
         maxZoom={1}
       >
         <Controls />
+        <Cursors />
       </ReactFlow>
     </div>
   );
