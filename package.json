@@ -22,6 +22,7 @@
     "@clerk/ui": "^1.42.6",
     "@neondatabase/serverless": "^1.2.1",
     "@trigger.dev/sdk": "^4.8.5",
+    "@xyflow/react": "^13.0.1",
     "class-variance-authority": "^0.7.1",
     "cn": "^0.5.2",
     "dotenv": "^18.0.10",
