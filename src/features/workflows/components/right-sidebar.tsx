@@ -1,12 +1,7 @@
 "use client";
 
 import { useReactFlow, useStore } from "@xyflow/react";
-import {
-  ActivityIcon,
-  MoreHorizontalIcon,
-  PlayIcon,
-  Trash2Icon,
-} from "lucide-react";
+import { MoreHorizontalIcon, PlayIcon, Trash2Icon } from "lucide-react";
 import { useState, useTransition } from "react";
 import {
   Accordion,
@@ -28,7 +23,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "@/components/ui/toast";
 import {
-  type NodeDefinition,
   type NodeField,
   type NodeType,
   nodeRegistry,
@@ -36,7 +30,8 @@ import {
   type StepNodeType,
 } from "@/features/workflows/nodes/node-registry";
 import { cn } from "@/lib/utils";
-import { deleteWorkflowAction } from "../actions";
+import { deleteWorkflowAction, runWorkflowAction } from "../actions";
+import { validateGraph } from "../validate-graph";
 
 interface NodeIconProps {
   type: NodeType;
@@ -266,13 +261,29 @@ const ActionsMenu = ({ workflowId }: { workflowId: string }) => {
   );
 };
 
-const RunButton = () => {
+const RunButton = ({ workflowId }: { workflowId: string }) => {
+  const { getNodes, getEdges } = useReactFlow<StepNodeType>();
+  const [isPending, startTransition] = useTransition();
   return (
     <Button
       size="sm"
       variant="secondary"
+      disabled={isPending}
       onClick={() => {
-        // TODO: validate the graph and run the workflow (toggle to Stop while running).
+        const graph = { nodes: getNodes(), edges: getEdges() };
+        const problems = validateGraph(graph);
+        if (problems.length > 0) {
+          toast.add({
+            type: "error",
+            title: "Workflow graph is invalid",
+            description: problems.join(" "),
+          });
+          return;
+        }
+
+        startTransition(async () => {
+          await runWorkflowAction({ workflowId, graph });
+        });
       }}
     >
       <PlayIcon fill="primary" />
@@ -305,7 +316,7 @@ export const RightSidebar = ({ workflowId }: { workflowId: string }) => {
       <Tabs value={tab} onValueChange={setTab} className="size-full gap-0">
         <div className="flex items-center justify-between border-b border-border p-2">
           <ActionsMenu workflowId={workflowId} />
-          <RunButton />
+          <RunButton workflowId={workflowId} />
         </div>
         <TabsList className="m-2 w-fit bg-background">
           <TabsTrigger
