@@ -9,6 +9,8 @@ export type NodeField = {
   key: string;
   label: string;
   placeholder?: string;
+  multiline?: boolean;
+  required?: boolean;
 };
 
 export type NodeDefinition = {
@@ -40,6 +42,7 @@ export const nodeRegistry = {
         key: "url",
         label: "URL",
         placeholder: "https://example.com",
+        required: true,
       },
     ],
   },
