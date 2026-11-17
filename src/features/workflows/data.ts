@@ -1,6 +1,27 @@
 import { and, desc, eq } from "drizzle-orm";
 import { db } from "@/db";
-import { workflows } from "@/db/schema";
+import { type WorkflowGraph, workflows } from "@/db/schema";
+import { validateGraph } from "./validate-graph";
+
+export const saveWorkflowGraph = async ({
+  orgId,
+  workflowId,
+  graph,
+}: {
+  orgId: string;
+  workflowId: string;
+  graph: WorkflowGraph;
+}) => {
+  const problems = validateGraph(graph);
+
+  if (problems.length > 0) {
+    throw new Error(problems.join(" "));
+  }
+  await db
+    .update(workflows)
+    .set({ graph, updatedAt: new Date() })
+    .where(and(eq(workflows.orgId, orgId), eq(workflows.id, workflowId)));
+};
 
 export const listWorkflows = async (orgId: string) => {
   return db
