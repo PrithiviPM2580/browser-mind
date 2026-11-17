@@ -1,4 +1,5 @@
 import { auth } from "@clerk/nextjs/server";
+import { ReactFlowProvider } from "@xyflow/react";
 import { notFound } from "next/navigation";
 import { Room } from "@/features/workflows/components/room";
 import { WorkflowShell } from "@/features/workflows/components/workflow-shell";
@@ -16,7 +17,7 @@ export default async function Page({ params }: PageProps) {
   const { orgId } = await auth();
   if (!orgId) notFound();
 
-  const workflow = await getWorkflow(workflowId, orgId);
+  const workflow = await getWorkflow(orgId, workflowId);
   if (!workflow) notFound();
 
   await liveblocks.getOrCreateRoom(workflowId, {
@@ -32,7 +33,9 @@ export default async function Page({ params }: PageProps) {
 
   return (
     <Room roomId={workflowId}>
-      <WorkflowShell workflowId={workflowId} />
+      <ReactFlowProvider>
+        <WorkflowShell workflowId={workflowId} />
+      </ReactFlowProvider>
     </Room>
   );
 }
