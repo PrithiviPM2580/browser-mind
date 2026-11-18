@@ -28,6 +28,7 @@
     "@liveblocks/react-flow": "^3.25.1",
     "@liveblocks/react-ui": "^3.25.1",
     "@neondatabase/serverless": "^1.2.1",
+    "@trigger.dev/react-hooks": "^4.8.5",
     "@trigger.dev/sdk": "^4.8.5",
     "@xyflow/react": "^12.12.1",
     "class-variance-authority": "^0.7.1",
