@@ -5,6 +5,11 @@ export type StepNodeKind = "trigger" | "action";
 
 export type NodeNames = "start" | "open-url";
 
+export type NodeOutput = {
+  path: string;
+  label: string;
+};
+
 export type NodeField = {
   key: string;
   label: string;
@@ -20,6 +25,7 @@ export type NodeDefinition = {
   icon: LucideIcon;
   accent: string;
   fields: NodeField[];
+  outputs: NodeOutput[];
 };
 
 export const nodeRegistry = {
@@ -30,6 +36,7 @@ export const nodeRegistry = {
     icon: MousePointerIcon,
     accent: "bg-blue-500 text-white",
     fields: [],
+    outputs: [],
   },
   "open-url": {
     type: "open-url",
@@ -44,6 +51,10 @@ export const nodeRegistry = {
         placeholder: "https://example.com",
         required: true,
       },
+    ],
+    outputs: [
+      { path: "url", label: "URL" },
+      { path: "title", label: "Title" },
     ],
   },
 } satisfies Record<NodeNames, NodeDefinition>;

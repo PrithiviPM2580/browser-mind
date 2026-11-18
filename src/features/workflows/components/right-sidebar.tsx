@@ -31,6 +31,7 @@ import {
 } from "@/features/workflows/nodes/node-registry";
 import { cn } from "@/lib/utils";
 import { deleteWorkflowAction, runWorkflowAction } from "../actions";
+import { useUpstreamConnections } from "../hooks/use-upstream-connections";
 import { validateGraph } from "../validate-graph";
 
 interface NodeIconProps {
@@ -76,13 +77,15 @@ interface FieldProps {
   field: NodeField;
   value: string;
   onChange: (value: string) => void;
+  onFocus: () => void;
 }
 
-export const Field = ({ field, value, onChange }: FieldProps) => {
+export const Field = ({ field, value, onChange, onFocus }: FieldProps) => {
   if (field.multiline) {
     return (
       <Textarea
         id={field.key}
+        onFocus={onFocus}
         value={value}
         placeholder={field.placeholder}
         onChange={(e) => onChange(e.target.value)}
@@ -93,6 +96,7 @@ export const Field = ({ field, value, onChange }: FieldProps) => {
     <Input
       id={field.key}
       value={value}
+      onFocus={onFocus}
       placeholder={field.placeholder}
       onChange={(e) => onChange(e.target.value)}
     />
@@ -105,6 +109,8 @@ interface InspectorProps {
 
 export const Inspector = ({ node }: InspectorProps) => {
   const { updateNodeData } = useReactFlow<StepNodeType>();
+  const connections = useUpstreamConnections();
+  const [activeFieldKey, setActiveFieldKey] = useState<string | null>(null);
 
   if (!node) {
     return (
@@ -116,6 +122,15 @@ export const Inspector = ({ node }: InspectorProps) => {
 
   const { type, title, values } = node.data;
   const def = nodeRegistry[type];
+
+  const targetKey = activeFieldKey ?? def.fields[0]?.key;
+
+  const insertToken = (token: string) => {
+    if (!targetKey) return;
+    updateNodeData(node.id, {
+      values: { ...values, [targetKey]: (values[targetKey] ?? "") + token },
+    });
+  };
 
   return (
     <Section title={title} icon={<NodeIcon type={type} />}>
@@ -132,6 +147,7 @@ export const Inspector = ({ node }: InspectorProps) => {
               <Field
                 field={field}
                 value={values[field.key] ?? ""}
+                onFocus={() => setActiveFieldKey(field.key)}
                 onChange={(value) => {
                   updateNodeData(node.id, {
                     values: { ...values, [field.key]: value },
@@ -140,6 +156,24 @@ export const Inspector = ({ node }: InspectorProps) => {
               />
             </div>
           ))
+        )}
+        {connections.length > 0 && (
+          <div className="flex flex-col gap-1.5">
+            <Label className="text-xs">Connections</Label>
+            <div className="flex flex-wrap gap-1.5">
+              {connections.map((connection) => (
+                <button
+                  key={connection.token}
+                  type="button"
+                  onClick={() => insertToken(connection.token)}
+                  className="flex max-w-full items-center gap-1.5 rounded-md border border-border bg-card px-1.5 py-1 text-xs hover:bg-accent"
+                >
+                  <NodeIcon type={connection.nodeType} className="size-4" />
+                  <span className="truncate">{connection.label}</span>
+                </button>
+              ))}
+            </div>
+          </div>
         )}
       </div>
     </Section>
@@ -336,7 +370,7 @@ export const RightSidebar = ({ workflowId }: { workflowId: string }) => {
           <Palette />
         </TabsContent>
         <TabsContent value="editor" className="flex min-h-0 flex-col">
-          <Inspector node={selected} />
+          <Inspector key={selected?.id} node={selected} />
         </TabsContent>
       </Tabs>
     </ResizablePanel>
