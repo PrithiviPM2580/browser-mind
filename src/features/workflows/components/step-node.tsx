@@ -1,23 +1,31 @@
 import { Handle, type NodeProps, Position } from "@xyflow/react";
 import { memo } from "react";
-
+import { Spinner } from "@/components/ui/spinner";
 import {
   nodeRegistry,
   type StepNodeType,
 } from "@/features/workflows/nodes/node-registry";
 import { cn } from "@/lib/utils";
+import { useLatestRunSteps } from "./workflow-runs-provider";
 
-const StepNodeComponent = ({ data, selected }: NodeProps<StepNodeType>) => {
+const StepNodeComponent = ({ id, data, selected }: NodeProps<StepNodeType>) => {
   const { kind, type, title, values } = data;
   const def = nodeRegistry[type];
   const Icon = def.icon;
   const fields = def.fields.filter((field) => values[field.key]);
+
+  const { steps, isLive } = useLatestRunSteps();
+  const status = steps.find((step) => step.nodeId === id)?.status;
+  const isRunning = status === "running" && isLive;
+  const isFailed = status === "failed";
 
   const hasTarget = kind !== "trigger";
   return (
     <div
       className={cn(
         "min-w-50 max-w-80 rounded-(--radius) border-2 border-border bg-card text-card-foreground",
+        isRunning && "border-blue-500",
+        isFailed && "border-red-500",
         selected && "ring-2 ring-ring ring-offset-2 ring-offset-background",
       )}
     >
@@ -36,7 +44,11 @@ const StepNodeComponent = ({ data, selected }: NodeProps<StepNodeType>) => {
             def.accent,
           )}
         >
-          <Icon className="size-4" />
+          {isRunning ? (
+            <Spinner className="size-4" />
+          ) : (
+            <Icon className="size-4" />
+          )}
         </div>
         <span className="text-sm font-semibold">{title}</span>
       </div>
