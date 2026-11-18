@@ -1,9 +1,23 @@
 import type { Node } from "@xyflow/react";
-import { GlobeIcon, type LucideIcon, MousePointerIcon } from "lucide-react";
+import {
+  BotIcon,
+  EyeIcon,
+  GlobeIcon,
+  type LucideIcon,
+  MousePointerIcon,
+  PointerIcon,
+  ScanTextIcon,
+} from "lucide-react";
 
 export type StepNodeKind = "trigger" | "action";
 
-export type NodeNames = "start" | "open-url";
+export type NodeNames =
+  | "start"
+  | "open-url"
+  | "act"
+  | "extract"
+  | "observe"
+  | "agent";
 
 export type NodeOutput = {
   path: string;
@@ -55,6 +69,86 @@ export const nodeRegistry = {
     outputs: [
       { path: "url", label: "URL" },
       { path: "title", label: "Title" },
+    ],
+  },
+  act: {
+    type: "act",
+    kind: "action",
+    label: "Act",
+    icon: PointerIcon,
+    accent: "bg-violet-500 text-white",
+    fields: [
+      {
+        key: "instruction",
+        label: "Instruction",
+        placeholder: "Click the sign in button",
+        multiline: true,
+        required: true,
+      },
+    ],
+    outputs: [
+      { path: "success", label: "Success" },
+      { path: "message", label: "Message" },
+      { path: "url", label: "URL" },
+    ],
+  },
+  extract: {
+    type: "extract",
+    kind: "action",
+    label: "Extract",
+    icon: ScanTextIcon,
+    accent: "bg-amber-500 text-white",
+    fields: [
+      {
+        key: "instruction",
+        label: "Instruction",
+        placeholder: "Extract the product price",
+        multiline: true,
+        required: true,
+      },
+    ],
+    outputs: [{ path: "extraction", label: "Extraction" }],
+  },
+  observe: {
+    type: "observe",
+    kind: "action",
+    label: "Observe",
+    icon: EyeIcon,
+    accent: "bg-sky-500 text-white",
+    fields: [
+      {
+        key: "instruction",
+        label: "Instruction",
+        placeholder: "Find the sign in button",
+        multiline: true,
+        required: true,
+      },
+    ],
+    outputs: [
+      { path: "matches", label: "Matches" },
+      { path: "matches[0].selector", label: "Selector" },
+      { path: "matches[0].description", label: "Description" },
+    ],
+  },
+  agent: {
+    type: "agent",
+    kind: "action",
+    label: "Agent",
+    icon: BotIcon,
+    accent: "bg-rose-500 text-white",
+    fields: [
+      {
+        key: "instruction",
+        label: "Instruction",
+        placeholder: "Search for the stock price of NVDA",
+        multiline: true,
+        required: true,
+      },
+    ],
+    outputs: [
+      { path: "success", label: "Success" },
+      { path: "message", label: "Message" },
+      { path: "completed", label: "Completed" },
     ],
   },
 } satisfies Record<NodeNames, NodeDefinition>;
