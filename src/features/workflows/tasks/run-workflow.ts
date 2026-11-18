@@ -1,6 +1,7 @@
 import { Stagehand } from "@browserbasehq/stagehand";
 import { logger, task } from "@trigger.dev/sdk";
 import toposort from "toposort";
+import { interpolate, type NodeOutputs } from "@/lib/interpolate";
 import { getWorkflow } from "../data";
 import { nodeExecutors } from "../nodes/node-executor";
 
@@ -41,12 +42,21 @@ export const runWorkflowTask = task({
       return stagehand;
     };
 
+    const outputs: NodeOutputs = {};
+
     for (const id of order) {
       const node = byId.get(id)!;
 
       logger.log(`Running step: ${node?.data.title}`);
       const executor = nodeExecutors[node.data.type];
-      if (executor) await executor({ values: node.data.values, getStagehand });
+      if (!executor) continue;
+      const values = Object.fromEntries(
+        Object.entries(node.data.values).map(([key, text]) => [
+          key,
+          interpolate({ text, outputs }),
+        ]),
+      );
+      outputs[id] = await executor({ values, getStagehand });
     }
     await stagehand?.close();
 
